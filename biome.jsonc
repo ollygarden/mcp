@@ -1,0 +1,28 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.3.14/schema.json",
+	"assist": { "enabled": true },
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"style": { "noDefaultExport": "error" }
+		}
+	},
+	"formatter": { "enabled": true, "indentStyle": "tab" },
+	"overrides": [
+		{
+			// Cloudflare Worker entry must default-export the fetch handler.
+			"includes": ["src/index.ts", "**/*.config.ts"],
+			"linter": { "rules": { "style": { "noDefaultExport": "off" } } }
+		},
+		{
+			"includes": [
+				"**/worker-configuration.d.ts",
+				"**/.wrangler/**",
+				"**/.claude/**"
+			],
+			"linter": { "enabled": false },
+			"formatter": { "enabled": false },
+			"assist": { "enabled": false }
+		}
+	]
+}

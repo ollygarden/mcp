@@ -1,0 +1,6 @@
+name = "ollygarden-mcp"
+main = "src/index.ts"
+compatibility_date = "2026-08-01"
+compatibility_flags = ["nodejs_compat"]
+[dev]
+port = 8787
