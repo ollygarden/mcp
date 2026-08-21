@@ -1,5 +1,6 @@
 {
-	"name": "mcp",
+	"name": "ollygarden-mcp",
+	"version": "0.0.1",
 	"type": "module",
 	"private": true,
 	"devDependencies": {
@@ -15,12 +16,14 @@
 		"typescript": "^5"
 	},
 	"dependencies": {
+		"@clerk/hono": "^0.1.71",
+		"@clerk/mcp-tools": "^0.6.0",
 		"@modelcontextprotocol/server": "^2.0.0",
+		"hono": "^4.13.3",
 		"zod": "^4.4.3"
 	},
 	"scripts": {
 		"dev": "concurrently -k -n worker,inspector \"wrangler dev\" \"mcp-inspector --config mcp.json\"",
-		"deploy": "wrangler deploy",
 		"typecheck": "tsc --noEmit",
 		"lint": "biome check .",
 		"format": "biome check --write .",

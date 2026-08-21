@@ -2,5 +2,23 @@ name = "ollygarden-mcp"
 main = "src/index.ts"
 compatibility_date = "2026-08-01"
 compatibility_flags = ["nodejs_compat"]
+
 [dev]
 port = 8787
+
+[vars]
+OLLYGARDEN_API_URL = "https://api.dev.ollygarden.cloud/api"
+
+[env.dev]
+name = "ollygarden-mcp-dev"
+
+[env.dev.vars]
+OLLYGARDEN_API_URL = "https://api.dev.ollygarden.cloud/api"
+CLERK_PUBLISHABLE_KEY = "pk_test_REPLACE_ME"
+
+[env.prod]
+name = "ollygarden-mcp"
+
+[env.prod.vars]
+OLLYGARDEN_API_URL = "https://api.ollygarden.cloud/api"
+CLERK_PUBLISHABLE_KEY = "pk_live_REPLACE_ME"

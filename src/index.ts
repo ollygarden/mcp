@@ -1,19 +1,30 @@
-import { createMcpHandler, McpServer } from "@modelcontextprotocol/server";
-import * as z from "zod/v4";
+import { clerkMiddleware } from "@clerk/hono";
+import {
+	mcpAuthClerk,
+	protectedResourceHandlerClerk,
+} from "@clerk/mcp-tools/hono";
+import { createMcpHandler } from "@modelcontextprotocol/server";
+import { Hono } from "hono";
+import { OllyGardenClient } from "./clients/ollygarden.ts";
+import { createServer } from "./server.ts";
 
-const handler = createMcpHandler(() => {
-	const server = new McpServer({ name: "ollygarden", version: "0.0.1" });
-	server.registerTool(
-		"ping",
-		{
-			description: "Health check",
-			inputSchema: z.object({ message: z.string().optional() }),
-		},
-		async ({ message }) => ({
-			content: [{ type: "text", text: `pong ${message ?? ""}` }],
-		}),
-	);
-	return server;
+type Bindings = {
+	CLERK_PUBLISHABLE_KEY: string;
+	CLERK_SECRET_KEY: string;
+	OLLYGARDEN_API_URL: string;
+};
+
+const app = new Hono<{ Bindings: Bindings }>();
+
+app.use("*", clerkMiddleware());
+app.get(
+	"/.well-known/oauth-protected-resource/mcp",
+	protectedResourceHandlerClerk(),
+);
+app.all("/mcp", mcpAuthClerk, (c) => {
+	const olly = new OllyGardenClient({ baseUrl: c.env.OLLYGARDEN_API_URL });
+	const mcp = createMcpHandler(() => createServer({ olly }));
+	return mcp.fetch(c.req.raw, { authInfo: c.get("mcpAuth") });
 });
 
-export default handler;
+export default app;
