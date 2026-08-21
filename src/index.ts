@@ -1,19 +1,4 @@
-import { createMcpHandler, McpServer } from "@modelcontextprotocol/server";
-import * as z from "zod/v4";
+import { createMcpHandler } from "@modelcontextprotocol/server";
+import { createServer } from "./server.ts";
 
-const handler = createMcpHandler(() => {
-	const server = new McpServer({ name: "ollygarden", version: "0.0.1" });
-	server.registerTool(
-		"ping",
-		{
-			description: "Health check",
-			inputSchema: z.object({ message: z.string().optional() }),
-		},
-		async ({ message }) => ({
-			content: [{ type: "text", text: `pong ${message ?? ""}` }],
-		}),
-	);
-	return server;
-});
-
-export default handler;
+export default createMcpHandler(createServer);
