@@ -1,1 +1,1 @@
-# mcp
+# OllyGarden MCP server
