@@ -10,8 +10,7 @@ export function registerOrganization(
 	server.registerTool(
 		"get_organization",
 		{
-			description:
-				"Get the caller's OllyGarden organization details",
+			description: "Get the caller's OllyGarden organization details",
 			inputSchema: z.object({}),
 			annotations: { readOnlyHint: true },
 		},

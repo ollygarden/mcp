@@ -1,4 +1,3 @@
-
 export type OgClientOptions = {
 	baseUrl: string;
 };
