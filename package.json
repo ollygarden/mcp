@@ -4,7 +4,7 @@
 	"type": "module",
 	"private": true,
 	"devDependencies": {
-		"@biomejs/biome": "2.3.14",
+		"@biomejs/biome": "2.5.13",
 		"@cloudflare/workers-types": "^5.20260821.1",
 		"@modelcontextprotocol/inspector": "^2.3.0",
 		"@types/bun": "latest",
