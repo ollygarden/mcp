@@ -2,6 +2,7 @@ import type { McpServer } from "@modelcontextprotocol/server";
 import * as z from "zod/v4";
 import { requireAuth } from "../auth.ts";
 import type { OllyGardenClient } from "../clients/ollygarden.ts";
+import { jsonResult } from "../utils/result.ts";
 
 export function registerOrganization(
 	server: McpServer,
@@ -16,10 +17,8 @@ export function registerOrganization(
 		},
 		async (_args, ctx) => {
 			const { token } = requireAuth(ctx);
-			const org = await ollygarden.get<unknown>("/v1/organization", token);
-			return {
-				content: [{ type: "text", text: JSON.stringify(org, null, 2) }],
-			};
+			const { data } = await ollygarden.get<unknown>("/v1/organization", token);
+			return jsonResult(data);
 		},
 	);
 }

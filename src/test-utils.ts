@@ -1,4 +1,5 @@
 import { createMcpHandler } from "@modelcontextprotocol/server";
+import { vi } from "vitest";
 import { OllyGardenClient } from "./clients/ollygarden.ts";
 import { createServer } from "./server.ts";
 
@@ -48,3 +49,16 @@ export async function callTool(
 		content: { type: string; text: string }[];
 	};
 }
+
+/** Stubs `fetch` to answer every request with `body` as JSON; returns the mock. */
+export function stubFetch(body: unknown) {
+	const mock = vi.fn(async (_url: URL, _init?: RequestInit) =>
+		Response.json(body),
+	);
+	vi.stubGlobal("fetch", mock);
+	return mock;
+}
+
+/** URL of the n-th request made through a `stubFetch` mock. */
+export const requestedUrl = (mock: ReturnType<typeof stubFetch>, n = 0) =>
+	new URL(String(mock.mock.calls[n]?.[0]));
