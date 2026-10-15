@@ -4,7 +4,6 @@ import type { OllyGardenClient } from "./clients/ollygarden.ts";
 import { registerInsights } from "./tools/insights/insights.ts";
 import { registerServices } from "./tools/insights/services.ts";
 import { registerOrganization } from "./tools/organization.ts";
-import { registerPing } from "./tools/ping.ts";
 import { registerFindings } from "./tools/rose/findings.ts";
 import { registerRepositories } from "./tools/rose/repositories.ts";
 import { registerWhoami } from "./tools/whoami.ts";
@@ -19,7 +18,6 @@ export function createServer({ olly }: Deps): McpServer {
 		name: MCP_SERVER_NAME,
 		version: MCP_SERVER_VERSION,
 	});
-	registerPing(server);
 	registerWhoami(server);
 	registerOrganization(server, olly);
 	registerInsights(server, olly);
