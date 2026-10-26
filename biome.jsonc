@@ -10,16 +10,11 @@
 	"formatter": { "enabled": true, "indentStyle": "tab" },
 	"overrides": [
 		{
-			// Cloudflare Worker entry must default-export the fetch handler.
-			"includes": ["src/index.ts", "**/*.config.ts"],
+			"includes": ["**/*.config.ts"],
 			"linter": { "rules": { "style": { "noDefaultExport": "off" } } }
 		},
 		{
-			"includes": [
-				"**/worker-configuration.d.ts",
-				"**/.wrangler/**",
-				"**/.claude/**"
-			],
+			"includes": ["**/.claude/**"],
 			"linter": { "enabled": false },
 			"formatter": { "enabled": false },
 			"assist": { "enabled": false }
