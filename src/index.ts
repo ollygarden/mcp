@@ -1,5 +1,8 @@
 import { clerkMiddleware } from "@clerk/hono";
-import { protectedResourceHandlerClerk } from "@clerk/mcp-tools/hono";
+import {
+	authServerMetadataHandlerClerk,
+	protectedResourceHandlerClerk,
+} from "@clerk/mcp-tools/hono";
 import { createMcpHandler } from "@modelcontextprotocol/server";
 import { Hono } from "hono";
 import * as z from "zod/v4";
@@ -24,6 +27,11 @@ app.use("*", clerkMiddleware());
 app.get(
 	"/.well-known/oauth-protected-resource/mcp",
 	protectedResourceHandlerClerk({ scopes_supported: OAUTH_SCOPES }),
+);
+// Clients on MCP spec 2025-03-26 look for the authorization server metadata here instead of on Clerk.
+app.get(
+	"/.well-known/oauth-authorization-server",
+	authServerMetadataHandlerClerk,
 );
 app.all("/mcp", mcpAuthClerkOrg(), (c) => {
 	const olly = new OllyGardenClient({
