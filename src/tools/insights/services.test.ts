@@ -1,10 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import {
-	callTool,
-	requestedUrl,
-	stubFetch,
-	testAuth,
-} from "../../test-utils.ts";
+import { callTool, requestedUrl, stubFetch } from "../../test-utils.ts";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -17,7 +12,7 @@ describe("list_services", () => {
 			meta: { total: 1, has_more: false },
 		});
 
-		const r = await callTool("list_services", { limit: 5 }, testAuth);
+		const r = await callTool("list_services", { limit: 5 });
 
 		const url = requestedUrl(fetchMock);
 		expect(url.pathname).toBe("/api/v1/services");
@@ -36,7 +31,7 @@ describe("get_service", () => {
 	it("fetches one service and unwraps data", async () => {
 		const fetchMock = stubFetch({ data: { id, name: "checkout" } });
 
-		const r = await callTool("get_service", { id }, testAuth);
+		const r = await callTool("get_service", { id });
 
 		expect(requestedUrl(fetchMock).pathname).toBe(`/api/v1/services/${id}`);
 		expect(JSON.parse(r.content[0]?.text ?? "")).toEqual({

@@ -1,10 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import {
-	callTool,
-	requestedUrl,
-	stubFetch,
-	testAuth,
-} from "../../test-utils.ts";
+import { callTool, requestedUrl, stubFetch } from "../../test-utils.ts";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -17,17 +12,13 @@ describe("list_insights", () => {
 			meta: { total: 42, has_more: true },
 		});
 
-		const r = await callTool(
-			"list_insights",
-			{
-				status: ["active", "muted"],
-				impact: ["Critical"],
-				sort: "-impact",
-				limit: 10,
-				offset: 20,
-			},
-			testAuth,
-		);
+		const r = await callTool("list_insights", {
+			status: ["active", "muted"],
+			impact: ["Critical"],
+			sort: "-impact",
+			limit: 10,
+			offset: 20,
+		});
 
 		const url = requestedUrl(fetchMock);
 		expect(url.pathname).toBe("/api/v1/insights");
@@ -49,7 +40,7 @@ describe("get_insight", () => {
 	it("fetches one insight and unwraps data", async () => {
 		const fetchMock = stubFetch({ data: { id, impact: "Critical" } });
 
-		const r = await callTool("get_insight", { id }, testAuth);
+		const r = await callTool("get_insight", { id });
 
 		expect(requestedUrl(fetchMock).pathname).toBe(`/api/v1/insights/${id}`);
 		expect(JSON.parse(r.content[0]?.text ?? "")).toEqual({
@@ -60,7 +51,7 @@ describe("get_insight", () => {
 
 	it("rejects a non-UUID id without calling the API", async () => {
 		const fetchMock = stubFetch({});
-		const r = await callTool("get_insight", { id: "nope" }, testAuth);
+		const r = await callTool("get_insight", { id: "nope" });
 		expect(r.isError).toBe(true);
 		expect(fetchMock).not.toHaveBeenCalled();
 	});

@@ -1,10 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import {
-	callTool,
-	requestedUrl,
-	stubFetch,
-	testAuth,
-} from "../../test-utils.ts";
+import { callTool, requestedUrl, stubFetch } from "../../test-utils.ts";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -19,11 +14,11 @@ describe("list_findings", () => {
 			},
 		});
 
-		const r = await callTool(
-			"list_findings",
-			{ severity: ["critical", "high"], limit: 25, offset: 50 },
-			testAuth,
-		);
+		const r = await callTool("list_findings", {
+			severity: ["critical", "high"],
+			limit: 25,
+			offset: 50,
+		});
 
 		const url = requestedUrl(fetchMock);
 		expect(url.pathname).toBe("/api/v1/rose/findings");
@@ -41,11 +36,7 @@ describe("list_findings", () => {
 
 	it("rejects an offset that is not a multiple of limit", async () => {
 		const fetchMock = stubFetch({});
-		const r = await callTool(
-			"list_findings",
-			{ limit: 20, offset: 5 },
-			testAuth,
-		);
+		const r = await callTool("list_findings", { limit: 20, offset: 5 });
 		expect(r.isError).toBe(true);
 		expect(fetchMock).not.toHaveBeenCalled();
 	});
@@ -64,11 +55,10 @@ describe("get_finding", () => {
 	it("returns the matching finding from the repository detail", async () => {
 		const fetchMock = stubFetch(repoDetail);
 
-		const r = await callTool(
-			"get_finding",
-			{ repository_id: repoId, finding_id: "f2" },
-			testAuth,
-		);
+		const r = await callTool("get_finding", {
+			repository_id: repoId,
+			finding_id: "f2",
+		});
 
 		const url = requestedUrl(fetchMock);
 		expect(url.pathname).toBe(`/api/v1/rose/repositories/${repoId}`);
@@ -82,11 +72,10 @@ describe("get_finding", () => {
 
 	it("errors when the finding is not in the repository", async () => {
 		stubFetch(repoDetail);
-		const r = await callTool(
-			"get_finding",
-			{ repository_id: repoId, finding_id: "missing" },
-			testAuth,
-		);
+		const r = await callTool("get_finding", {
+			repository_id: repoId,
+			finding_id: "missing",
+		});
 		expect(r.isError).toBe(true);
 		expect(r.content[0]?.text).toMatch(/missing not found/);
 	});

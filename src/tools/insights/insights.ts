@@ -1,6 +1,5 @@
 import type { McpServer } from "@modelcontextprotocol/server";
 import * as z from "zod/v4";
-import { requireAuth } from "../../auth.ts";
 import type { OllyGardenClient } from "../../clients/ollygarden.ts";
 import { fromOlive, pageInput } from "../../utils/pagination.ts";
 import { jsonResult } from "../../utils/result.ts";
@@ -48,11 +47,9 @@ export function registerInsights(
 			}),
 			annotations: { readOnlyHint: true },
 		},
-		async (args, ctx) => {
-			const { token } = requireAuth(ctx);
+		async (args) => {
 			const { data, meta } = await ollygarden.get<unknown[]>(
 				"/v1/insights",
-				token,
 				args,
 			);
 			return jsonResult(fromOlive(data, args, meta));
@@ -67,12 +64,8 @@ export function registerInsights(
 			inputSchema: z.object({ id: z.uuid() }),
 			annotations: { readOnlyHint: true },
 		},
-		async ({ id }, ctx) => {
-			const { token } = requireAuth(ctx);
-			const { data } = await ollygarden.get<unknown>(
-				`/v1/insights/${id}`,
-				token,
-			);
+		async ({ id }) => {
+			const { data } = await ollygarden.get<unknown>(`/v1/insights/${id}`);
 			return jsonResult(data);
 		},
 	);

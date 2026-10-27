@@ -1,6 +1,5 @@
 import type { McpServer } from "@modelcontextprotocol/server";
 import * as z from "zod/v4";
-import { requireAuth } from "../../auth.ts";
 import type { OllyGardenClient } from "../../clients/ollygarden.ts";
 import {
 	fromRose,
@@ -47,11 +46,9 @@ export function registerFindings(
 				.refine(...roseAligned),
 			annotations: { readOnlyHint: true },
 		},
-		async ({ limit, offset, ...filters }, ctx) => {
-			const { token } = requireAuth(ctx);
+		async ({ limit, offset, ...filters }) => {
 			const { data } = await ollygarden.get<RosePage<unknown>>(
 				"/v1/rose/findings",
-				token,
 				{ ...filters, ...toRoseQuery({ limit, offset }) },
 			);
 			return jsonResult(fromRose(data));
@@ -69,12 +66,10 @@ export function registerFindings(
 			}),
 			annotations: { readOnlyHint: true },
 		},
-		async ({ repository_id, finding_id }, ctx) => {
-			const { token } = requireAuth(ctx);
+		async ({ repository_id, finding_id }) => {
 			// No single-finding endpoint yet: the repository detail embeds full finding bodies.
 			const { data } = await ollygarden.get<RepositoryDetail>(
 				`/v1/rose/repositories/${repository_id}`,
-				token,
 			);
 			const finding = data.findings.find((f) => f.finding_id === finding_id);
 			if (!finding)
