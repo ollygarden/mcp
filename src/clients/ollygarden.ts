@@ -1,5 +1,6 @@
 export type OgClientOptions = {
 	baseUrl: string;
+	token: string;
 };
 
 export type ApiMeta = { total?: number; has_more?: boolean };
@@ -8,9 +9,11 @@ export type ApiResponse<T> = { data: T; links?: unknown; meta?: ApiMeta };
 /** Minimal client for the OllyGarden REST API (https://api.ollygarden.cloud/openapi.json). */
 export class OllyGardenClient {
 	private readonly baseUrl: string;
+	private readonly token: string;
 
-	constructor({ baseUrl }: OgClientOptions) {
+	constructor({ baseUrl, token }: OgClientOptions) {
 		this.baseUrl = baseUrl.replace(/\/$/, "");
+		this.token = token;
 	}
 
 	/**
@@ -19,7 +22,6 @@ export class OllyGardenClient {
 	 */
 	async get<T>(
 		path: string,
-		token: string,
 		query?: Record<string, string | number | boolean | string[] | undefined>,
 	): Promise<ApiResponse<T>> {
 		const url = new URL(`${this.baseUrl}${path}`);
@@ -28,7 +30,10 @@ export class OllyGardenClient {
 			url.searchParams.set(k, Array.isArray(v) ? v.join(",") : String(v));
 		}
 		const res = await fetch(url, {
-			headers: { authorization: `Bearer ${token}`, accept: "application/json" },
+			headers: {
+				authorization: `Bearer ${this.token}`,
+				accept: "application/json",
+			},
 		});
 		if (!res.ok)
 			throw new Error(

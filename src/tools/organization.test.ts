@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { callTool, testAuth } from "../test-utils.ts";
+import { callTool } from "../test-utils.ts";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -10,7 +10,7 @@ describe("get_organization", () => {
 		);
 		vi.stubGlobal("fetch", fetchMock);
 
-		const r = await callTool("get_organization", {}, testAuth);
+		const r = await callTool("get_organization", {});
 
 		const [url, init] = fetchMock.mock.calls[0] as unknown as [
 			URL,
@@ -32,7 +32,7 @@ describe("get_organization", () => {
 			async () =>
 				new Response("nope", { status: 401, statusText: "Unauthorized" }),
 		);
-		const r = await callTool("get_organization", {}, testAuth);
+		const r = await callTool("get_organization", {});
 		expect(r.isError).toBe(true);
 		expect(r.content[0]?.text).toMatch(/401/);
 	});

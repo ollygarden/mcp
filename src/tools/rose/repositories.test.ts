@@ -1,10 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import {
-	callTool,
-	requestedUrl,
-	stubFetch,
-	testAuth,
-} from "../../test-utils.ts";
+import { callTool, requestedUrl, stubFetch } from "../../test-utils.ts";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -19,7 +14,7 @@ describe("list_repositories", () => {
 			},
 		});
 
-		const r = await callTool("list_repositories", {}, testAuth);
+		const r = await callTool("list_repositories", {});
 
 		expect(requestedUrl(fetchMock).pathname).toBe("/api/v1/rose/repositories");
 		expect(JSON.parse(r.content[0]?.text ?? "")).toEqual({
@@ -34,7 +29,7 @@ describe("get_repository", () => {
 		const detail = { repository: { id }, findings: [] };
 		const fetchMock = stubFetch({ data: detail });
 
-		const r = await callTool("get_repository", { id }, testAuth);
+		const r = await callTool("get_repository", { id });
 
 		expect(requestedUrl(fetchMock).pathname).toBe(
 			`/api/v1/rose/repositories/${id}`,

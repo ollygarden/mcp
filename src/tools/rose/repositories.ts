@@ -1,6 +1,5 @@
 import type { McpServer } from "@modelcontextprotocol/server";
 import * as z from "zod/v4";
-import { requireAuth } from "../../auth.ts";
 import type { OllyGardenClient } from "../../clients/ollygarden.ts";
 import { fromRose, type RosePage } from "../../utils/pagination.ts";
 import { jsonResult } from "../../utils/result.ts";
@@ -17,11 +16,9 @@ export function registerRepositories(
 			inputSchema: z.object({}),
 			annotations: { readOnlyHint: true },
 		},
-		async (_args, ctx) => {
-			const { token } = requireAuth(ctx);
+		async (_args) => {
 			const { data } = await ollygarden.get<RosePage<unknown>>(
 				"/v1/rose/repositories",
-				token,
 			);
 			return jsonResult(fromRose(data));
 		},
@@ -35,11 +32,9 @@ export function registerRepositories(
 			inputSchema: z.object({ id: z.uuid() }),
 			annotations: { readOnlyHint: true },
 		},
-		async ({ id }, ctx) => {
-			const { token } = requireAuth(ctx);
+		async ({ id }) => {
 			const { data } = await ollygarden.get<unknown>(
 				`/v1/rose/repositories/${id}`,
-				token,
 			);
 			return jsonResult(data);
 		},
