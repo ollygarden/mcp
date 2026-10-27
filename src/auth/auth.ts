@@ -17,10 +17,7 @@ const claimsSchema = z.object({
 	org_id: z.string().nullish(),
 });
 
-/**
- * Verifies Clerk OAuth access tokens locally against the instance's public JWKS
- * — no Clerk secret key — and requires the organization selected at consent.
- */
+/** Verifies Clerk OAuth access tokens locally against the instance's public JWKS. */
 export function mcpAuthClerkOrg(publishableKey: string): MiddlewareHandler {
 	const [issuer = ""] = generateClerkProtectedResourceMetadata({
 		publishableKey,
