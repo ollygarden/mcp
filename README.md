@@ -6,6 +6,7 @@ Stateless MCP server (Streamable HTTP) on Bun + Hono. Auth via Clerk OAuth. Ship
 
 - `ALL /mcp` – MCP endpoint (Bearer token required; 401 points clients to discovery)
 - `GET /.well-known/oauth-protected-resource/mcp` – OAuth discovery → Clerk
+- `GET /.well-known/oauth-authorization-server` – Clerk's authorization server metadata, for pre-2025-06-18 clients
 - `GET /healthz` – liveness/readiness probe
 
 ## Config
