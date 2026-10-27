@@ -15,7 +15,7 @@
 	},
 	"dependencies": {
 		"@clerk/hono": "^0.1.71",
-		"@clerk/mcp-tools": "^0.6.0",
+		"@clerk/mcp-tools": "^0.7.0",
 		"@modelcontextprotocol/server": "^2.0.0",
 		"hono": "^4.13.3",
 		"zod": "^4.4.3"

@@ -6,7 +6,7 @@
       "name": "mcp",
       "dependencies": {
         "@clerk/hono": "^0.1.71",
-        "@clerk/mcp-tools": "^0.6.0",
+        "@clerk/mcp-tools": "^0.7.0",
         "@modelcontextprotocol/server": "^2.0.0",
         "hono": "^4.13.3",
         "zod": "^4.4.3",
@@ -48,7 +48,7 @@
 
     "@clerk/hono": ["@clerk/hono@0.1.71", "", { "dependencies": { "@clerk/backend": "^3.16.10", "@clerk/shared": "^4.29.3" }, "peerDependencies": { "hono": ">=4" } }, "sha512-WHJ3Ct+mg22g/FQLqetWNdOn/INxz4+HwlsSigZyLgYLfDw6rG6cldMaZv1OPUIGT2Y0fAGyJyKXqCuoyVJnMg=="],
 
-    "@clerk/mcp-tools": ["@clerk/mcp-tools@0.6.0", "", { "dependencies": { "@modelcontextprotocol/sdk": "^1.29.0" }, "peerDependencies": { "@clerk/express": "^2.1.5", "@clerk/hono": "^0.1.0", "@clerk/nextjs": "^7.2.3", "better-sqlite3": "^8.7.0", "express": "^5.0.0", "hono": "^4.0.0", "next": "^15.2.8 || ^15.3.8 || ^15.4.10 || ^15.5.9 || ^15.6.0-0 || ^16.0.10 || ^16.1.0-0", "pg": "^8.11.0", "redis": "^4.0.0" }, "optionalPeers": ["@clerk/express", "@clerk/hono", "@clerk/nextjs", "better-sqlite3", "express", "hono", "next", "pg", "redis"] }, "sha512-YXGZujj6oxD5T4XOi08UsLbPiWYD88Fe1uOwqZQekak8i2vitOgugRw7guwat3GuzQearRGdsW1P5AweQ043Sg=="],
+    "@clerk/mcp-tools": ["@clerk/mcp-tools@0.7.0", "", { "dependencies": { "@modelcontextprotocol/sdk": "^1.29.0" }, "peerDependencies": { "@clerk/express": "^2.1.5", "@clerk/hono": "^0.1.0", "@clerk/nextjs": "^7.2.3", "better-sqlite3": "^8.7.0", "express": "^5.0.0", "hono": "^4.0.0", "next": "^15.2.8 || ^15.3.8 || ^15.4.10 || ^15.5.9 || ^15.6.0-0 || ^16.0.10 || ^16.1.0-0", "pg": "^8.11.0", "redis": "^4.0.0", "zod": "^3.25 || ^4.0" }, "optionalPeers": ["@clerk/express", "@clerk/hono", "@clerk/nextjs", "better-sqlite3", "express", "hono", "next", "pg", "redis"] }, "sha512-WVmU/sbrQptdVEQUlUEWmsIkQifCB68ypJi4C1joPrBecjT/b9LyfxDLHOKZ4CGzx2rYSsOsxm2awpL6fzupFQ=="],
 
     "@clerk/shared": ["@clerk/shared@4.29.3", "", { "dependencies": { "@tanstack/query-core": "^5.100.6", "dequal": "2.0.3", "glob-to-regexp": "0.4.1", "js-cookie": "3.0.7" }, "peerDependencies": { "react": "^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0", "react-dom": "^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0" }, "optionalPeers": ["react", "react-dom"] }, "sha512-sc9CNFDR3q+tJ8N5MkGcHGiXlgupQ6DMcZlXdk88kfo1Pl7G9EFK8e4mzp5D9OiYGRJ7rPnZCKiWoyInD59QXw=="],
 
