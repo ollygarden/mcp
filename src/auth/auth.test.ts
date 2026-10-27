@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { mcpAuthClerkOrg } from "./auth.ts";
 
 /** Scopes of the fake verified Clerk OAuth token. */
@@ -14,23 +14,21 @@ vi.mock("@clerk/hono", () => ({
 	}),
 }));
 
-const userInfoUrl = "https://clerk.example.com/oauth/userinfo";
-const publishableKey = `pk_test_${btoa("clerk.example.com$")}`;
-
-/** Runs the middleware for a token with `scopes`. */
-function requestWith(scopes: string[]) {
-	grantedScopes = scopes;
-	const app = new Hono();
-	app.get("/mcp", mcpAuthClerkOrg(publishableKey), (c) => c.text("ok"));
-	return app.request("/mcp", {
-		headers: { authorization: "Bearer test-token" },
-	});
+/** Unsigned JWT access token; signature checks belong to the mocked Clerk verification. */
+function jwt(claims: Record<string, unknown>) {
+	const encode = (part: object) =>
+		Buffer.from(JSON.stringify(part)).toString("base64url");
+	return `${encode({ alg: "RS256", typ: "at+jwt" })}.${encode(claims)}.signature`;
 }
 
-function stubUserInfo(response: Response) {
-	const mock = vi.fn(async (_url: string, _init?: RequestInit) => response);
-	vi.stubGlobal("fetch", mock);
-	return mock;
+/** Runs the middleware for `token` granted `scopes`. */
+function requestWith(token: string, scopes: string[]) {
+	grantedScopes = scopes;
+	const app = new Hono();
+	app.get("/mcp", mcpAuthClerkOrg(), (c) => c.text("ok"));
+	return app.request("/mcp", {
+		headers: { authorization: `Bearer ${token}` },
+	});
 }
 
 async function expectInsufficientScope(response: Response) {
@@ -43,40 +41,30 @@ async function expectInsufficientScope(response: Response) {
 	});
 }
 
-afterEach(() => vi.unstubAllGlobals());
-
 describe("mcpAuthClerkOrg", () => {
 	it("accepts a token with a consent organization", async () => {
-		const mock = stubUserInfo(Response.json({ org_id: "org_selected" }));
-		const response = await requestWith(["openid", "user:org:read"]);
+		const token = jwt({ sub: "user_123", org_id: "org_selected" });
+		const response = await requestWith(token, ["openid", "user:org:read"]);
 		expect(response.status).toBe(200);
-		expect(mock).toHaveBeenCalledWith(
-			userInfoUrl,
-			expect.objectContaining({
-				headers: { authorization: "Bearer test-token" },
-			}),
-		);
 	});
 
 	it("rejects a token without the organization scope", async () => {
-		const mock = stubUserInfo(Response.json({ org_id: "org_selected" }));
-		await expectInsufficientScope(await requestWith(["openid"]));
-		expect(mock).not.toHaveBeenCalled();
+		const token = jwt({ sub: "user_123", org_id: "org_selected" });
+		await expectInsufficientScope(await requestWith(token, ["openid"]));
 	});
 
 	it.each([
-		undefined,
-		null,
-		"",
-	])("rejects a token when org_id is %j", async (org_id) => {
-		stubUserInfo(Response.json({ org_id }));
-		await expectInsufficientScope(await requestWith(["user:org:read"]));
+		{ sub: "user_123" },
+		{ sub: "user_123", org_id: null },
+		{ sub: "user_123", org_id: "" },
+	])("rejects a token with %j", async (claims) => {
+		const token = jwt(claims);
+		await expectInsufficientScope(await requestWith(token, ["user:org:read"]));
 	});
 
-	it("fails on Clerk errors without leaking the response body", async () => {
-		stubUserInfo(new Response("secret-upstream-body", { status: 500 }));
-		const response = await requestWith(["user:org:read"]);
-		expect(response.status).toBe(500);
-		expect(await response.text()).not.toContain("secret-upstream-body");
+	it("rejects an opaque token", async () => {
+		await expectInsufficientScope(
+			await requestWith("oat_opaque", ["user:org:read"]),
+		);
 	});
 });

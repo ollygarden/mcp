@@ -34,6 +34,9 @@ export class OllyGardenClient {
 				authorization: `Bearer ${this.token}`,
 				accept: "application/json",
 			},
+			signal: AbortSignal.timeout(30_000),
+			// Never forward the caller's token to wherever a redirect points.
+			redirect: "error",
 		});
 		if (!res.ok)
 			throw new Error(

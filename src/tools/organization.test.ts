@@ -20,6 +20,7 @@ describe("get_organization", () => {
 		expect(new Headers(init.headers).get("authorization")).toBe(
 			"Bearer test-token",
 		);
+		expect(init.redirect).toBe("error");
 		expect(JSON.parse(r.content[0]?.text ?? "")).toEqual({
 			tier: "free",
 			score: null,

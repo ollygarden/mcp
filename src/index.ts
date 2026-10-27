@@ -25,7 +25,7 @@ app.get(
 	"/.well-known/oauth-protected-resource/mcp",
 	protectedResourceHandlerClerk({ scopes_supported: OAUTH_SCOPES }),
 );
-app.all("/mcp", mcpAuthClerkOrg(env.CLERK_PUBLISHABLE_KEY), (c) => {
+app.all("/mcp", mcpAuthClerkOrg(), (c) => {
 	const olly = new OllyGardenClient({
 		baseUrl: env.OLLYGARDEN_API_URL,
 		token: c.get("mcpAuth").token,
