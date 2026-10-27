@@ -4,7 +4,7 @@
 	"type": "module",
 	"private": true,
 	"devDependencies": {
-		"@biomejs/biome": "2.3.14",
+		"@biomejs/biome": "2.6.3",
 		"@modelcontextprotocol/inspector": "^2.3.0",
 		"@types/bun": "latest",
 		"concurrently": "^10.0.5",
