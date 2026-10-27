@@ -5,12 +5,10 @@
 	"private": true,
 	"devDependencies": {
 		"@biomejs/biome": "2.3.14",
-		"@cloudflare/workers-types": "^5.20260821.1",
 		"@modelcontextprotocol/inspector": "^2.3.0",
 		"@types/bun": "latest",
 		"concurrently": "^10.0.5",
-		"vitest": "3.2.7",
-		"wrangler": "^4.125.0"
+		"vitest": "3.2.7"
 	},
 	"peerDependencies": {
 		"typescript": "^5"
@@ -23,7 +21,8 @@
 		"zod": "^4.4.3"
 	},
 	"scripts": {
-		"dev": "concurrently -k -n worker,inspector \"wrangler dev\" \"mcp-inspector --config mcp.json\"",
+		"start": "bun src/index.ts",
+		"dev": "concurrently -k -n server,inspector \"bun --watch src/index.ts\" \"mcp-inspector --config mcp.json\"",
 		"typecheck": "tsc --noEmit",
 		"lint": "biome check .",
 		"format": "biome check --write .",
