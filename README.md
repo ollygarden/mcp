@@ -14,7 +14,6 @@ Stateless MCP server (Streamable HTTP) on Bun + Hono. Auth via Clerk OAuth. Ship
 | Env | Required | Notes |
 | --- | --- | --- |
 | `CLERK_PUBLISHABLE_KEY` | yes | |
-| `CLERK_SECRET_KEY` | yes | mount from a Secret |
 | `OLLYGARDEN_API_URL` | yes | e.g. `https://api.ollygarden.cloud/api` |
 | `PUBLIC_URL` | behind ingress | public origin used in OAuth discovery metadata |
 | `PORT` | no | default `8787` |

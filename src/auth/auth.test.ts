@@ -1,31 +1,57 @@
 import { Hono } from "hono";
-import { describe, expect, it, vi } from "vitest";
+import { exportJWK, generateKeyPair, type JWTPayload, SignJWT } from "jose";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { mcpAuthClerkOrg } from "./auth.ts";
 
-/** Scopes of the fake verified Clerk OAuth token. */
-let grantedScopes: string[] = [];
-vi.mock("@clerk/hono", () => ({
-	getAuth: () => ({
-		isAuthenticated: true,
-		tokenType: "oauth_token",
-		clientId: "test-client",
-		userId: "user_123",
-		scopes: grantedScopes,
-	}),
-}));
+const issuer = "https://clerk.example.com";
+const publishableKey = `pk_test_${btoa("clerk.example.com$")}`;
 
-/** Unsigned JWT access token; signature checks belong to the mocked Clerk verification. */
-function jwt(claims: Record<string, unknown>) {
-	const encode = (part: object) =>
-		Buffer.from(JSON.stringify(part)).toString("base64url");
-	return `${encode({ alg: "RS256", typ: "at+jwt" })}.${encode(claims)}.signature`;
+let clerkKey: CryptoKey;
+let otherKey: CryptoKey;
+
+beforeAll(async () => {
+	const clerk = await generateKeyPair("RS256");
+	clerkKey = clerk.privateKey;
+	otherKey = (await generateKeyPair("RS256")).privateKey;
+	const jwk = await exportJWK(clerk.publicKey);
+	jwk.kid = "k1";
+	const jwks = { keys: [jwk] };
+	vi.stubGlobal(
+		"fetch",
+		vi.fn(async (url: URL | string) =>
+			String(url) === `${issuer}/.well-known/jwks.json`
+				? Response.json(jwks)
+				: new Response("not found", { status: 404 }),
+		),
+	);
+});
+
+afterEach(() => vi.clearAllMocks());
+
+const validClaims: JWTPayload = {
+	sub: "user_123",
+	client_id: "client_123",
+	scope: "openid user:org:read",
+	org_id: "org_selected",
+};
+
+/** Signs a Clerk-shaped OAuth access token; options override one property at a time. */
+function sign(
+	claims: JWTPayload,
+	{ key = clerkKey, typ = "at+jwt", iss = issuer, exp = "5m" } = {},
+) {
+	return new SignJWT(claims)
+		.setProtectedHeader({ alg: "RS256", typ, kid: "k1" })
+		.setIssuer(iss)
+		.setIssuedAt()
+		.setExpirationTime(exp)
+		.sign(key);
 }
 
-/** Runs the middleware for `token` granted `scopes`. */
-function requestWith(token: string, scopes: string[]) {
-	grantedScopes = scopes;
+/** Runs the middleware for `token`. */
+function requestWith(token: string) {
 	const app = new Hono();
-	app.get("/mcp", mcpAuthClerkOrg(), (c) => c.text("ok"));
+	app.get("/mcp", mcpAuthClerkOrg(publishableKey), (c) => c.text("ok"));
 	return app.request("/mcp", {
 		headers: { authorization: `Bearer ${token}` },
 	});
@@ -42,29 +68,58 @@ async function expectInsufficientScope(response: Response) {
 }
 
 describe("mcpAuthClerkOrg", () => {
-	it("accepts a token with a consent organization", async () => {
-		const token = jwt({ sub: "user_123", org_id: "org_selected" });
-		const response = await requestWith(token, ["openid", "user:org:read"]);
+	it("accepts a Clerk access token with a consent organization", async () => {
+		const response = await requestWith(await sign(validClaims));
 		expect(response.status).toBe(200);
 	});
 
 	it("rejects a token without the organization scope", async () => {
-		const token = jwt({ sub: "user_123", org_id: "org_selected" });
-		await expectInsufficientScope(await requestWith(token, ["openid"]));
+		const token = await sign({
+			sub: "user_123",
+			client_id: "client_123",
+			scope: "openid",
+			org_id: "org_selected",
+		});
+		await expectInsufficientScope(await requestWith(token));
 	});
 
 	it.each([
-		{ sub: "user_123" },
-		{ sub: "user_123", org_id: null },
-		{ sub: "user_123", org_id: "" },
-	])("rejects a token with %j", async (claims) => {
-		const token = jwt(claims);
-		await expectInsufficientScope(await requestWith(token, ["user:org:read"]));
+		{ sub: "user_123", client_id: "client_123", scope: "user:org:read" },
+		{
+			sub: "user_123",
+			client_id: "client_123",
+			scope: "user:org:read",
+			org_id: null,
+		},
+		{
+			sub: "user_123",
+			client_id: "client_123",
+			scope: "user:org:read",
+			org_id: "",
+		},
+	])("rejects a token without an organization: %j", async (claims) => {
+		await expectInsufficientScope(await requestWith(await sign(claims)));
 	});
 
-	it("rejects an opaque token", async () => {
-		await expectInsufficientScope(
-			await requestWith("oat_opaque", ["user:org:read"]),
-		);
+	it.each([
+		[
+			"a session token",
+			() =>
+				sign({
+					sub: "user_123",
+					client_id: "client_123",
+					scope: "openid user:org:read",
+					org_id: "org_selected",
+					sid: "sess_123",
+				}),
+		],
+		["another token type", () => sign(validClaims, { typ: "JWT" })],
+		["another issuer", () => sign(validClaims, { iss: "https://evil.com" })],
+		["an expired token", () => sign(validClaims, { exp: "-5m" })],
+		["another signing key", () => sign(validClaims, { key: otherKey })],
+		["an opaque token", async () => "oat_opaque"],
+	])("rejects %s", async (_name, token) => {
+		const response = await requestWith(await token());
+		expect(response.status).toBe(401);
 	});
 });
