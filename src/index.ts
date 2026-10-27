@@ -1,4 +1,3 @@
-import { clerkMiddleware } from "@clerk/hono";
 import {
 	authServerMetadataHandlerClerk,
 	protectedResourceHandlerClerk,
@@ -13,7 +12,6 @@ import { createServer } from "./server.ts";
 const env = z
 	.object({
 		CLERK_PUBLISHABLE_KEY: z.string().min(1),
-		CLERK_SECRET_KEY: z.string().min(1),
 		OLLYGARDEN_API_URL: z.url(),
 		PUBLIC_URL: z.url().optional(),
 		PORT: z.coerce.number().default(8787),
@@ -23,7 +21,6 @@ const env = z
 const app = new Hono();
 
 app.get("/healthz", (c) => c.text("ok"));
-app.use("*", clerkMiddleware());
 app.get(
 	"/.well-known/oauth-protected-resource/mcp",
 	protectedResourceHandlerClerk({ scopes_supported: OAUTH_SCOPES }),
@@ -33,7 +30,7 @@ app.get(
 	"/.well-known/oauth-authorization-server",
 	authServerMetadataHandlerClerk,
 );
-app.all("/mcp", mcpAuthClerkOrg(), (c) => {
+app.all("/mcp", mcpAuthClerkOrg(env.CLERK_PUBLISHABLE_KEY), (c) => {
 	const olly = new OllyGardenClient({
 		baseUrl: env.OLLYGARDEN_API_URL,
 		token: c.get("mcpAuth").token,
